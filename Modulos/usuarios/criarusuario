@@ -2,7 +2,7 @@
 # ============================================================
 # * Creado y modificado por t:me/JuanitoProSniif
 # ============================================================
-# CREAR USUARIO SSH — SSHMSY MANAGER v2.1
+# CREAR USUARIO SSH — JM MANAGER v2.1
 # Sin OpenVPN / Sin OpenSSH directo — usa Dropbear 2016/2020/2022
 #
 # CAMBIOS v2.1:
@@ -406,7 +406,7 @@ fun_usertoken() {
         gui=$(date "+%d/%m/%Y" -d "+$dias days")
     fi
 
-    pass=$(perl -e 'print crypt($ARGV[0], "\$1\$sshmsy\$")' $password)
+    pass=$(perl -e 'print crypt($ARGV[0], "\$1\$sshjm\$")' $password)
     useradd -e $final -m -s /bin/false -p $pass $username >/dev/null 2>&1
 
     [[ -d /etc/SSHPlus/senha ]] || mkdir -p /etc/SSHPlus/senha
@@ -509,7 +509,7 @@ else
         gui=$(date "+%d/%m/%Y" -d "+$dias days")
     fi
 
-    pass=$(perl -e 'print crypt($ARGV[0], "\$1\$sshmsy\$")' $password)
+    pass=$(perl -e 'print crypt($ARGV[0], "\$1\$sshjm\$")' $password)
     useradd -e $final -m -s /bin/false -p $pass $username >/dev/null 2>&1
 
     [[ -d /etc/SSHPlus/senha ]] || mkdir -p /etc/SSHPlus/senha

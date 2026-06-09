@@ -33,8 +33,8 @@ _EV_VARS="$_EV_DIR/vars"
 _EV_NETUP="$_EV_DIR/netup.sh"
 _EV_NETDOWN="$_EV_DIR/netdown.sh"
 _EV_WATCHDOG="$_EV_DIR/watchdog.sh"
-_EV_SVC="msy-exitvpn"
-_EV_SVC_WD="msy-exitvpn-watchdog"
+_EV_SVC="jm-exitvpn"
+_EV_SVC_WD="jm-exitvpn-watchdog"
 _EV_TPROXY_PORT="12345"
 _EV_SOCKS_PORT="10808"
 _EV_MARK="1"
@@ -381,7 +381,7 @@ NETDOWN
 D="/etc/SSHPlus/exitvpn"
 . "$D/vars" 2>/dev/null
 SOCKS="${SOCKS_PORT:-10808}"; TP="${TPROXY_PORT:-12345}"
-SVC="msy-exitvpn"
+SVC="jm-exitvpn"
 CHECK_INT=10        # cada 10s
 FAIL_NEEDED=3       # ~30s sin túnel antes de pasar a IP normal
 OK_NEEDED=2         # ~20s de túnel estable antes de volver a Austria

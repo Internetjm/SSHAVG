@@ -1,6 +1,6 @@
 #!/bin/bash
 # ╔══════════════════════════════════════════════════════════════════════════╗
-# ║  instalar_conteo.sh - Servidor conteo online MSY VPN                    ║
+# ║  instalar_conteo.sh - Servidor conteo online JM VPN                    ║
 # ║  Archivos en /root | HTTP :8081 | TCP :8082                             ║
 # ║  Ubuntu 18, 20, 22, 24, 25, 26, 27+ | Node.js via NVM                  ║
 # ║  t:me/JuanitoProSniif                                                    ║
@@ -17,7 +17,7 @@ _UBUNTU_VER=$(lsb_release -rs 2>/dev/null | cut -d. -f1 || grep -oP '(?<=Ubuntu 
 
 echo -e "${VERDE}"
 echo "╔══════════════════════════════════════════════════╗"
-echo "║   Servidor Conteo Online MSY VPN                 ║"
+echo "║   Servidor Conteo Online JM VPN                 ║"
 echo "║   HTTP :8081 + TCP :8082  |  Archivos en /root   ║"
 echo "║   Ubuntu 18 → 27+  |  Node.js via NVM            ║"
 echo -e "╚══════════════════════════════════════════════════╝${NC}"
@@ -70,7 +70,7 @@ info "Creando $ARCHIVO_JS..."
 # "España" no se convierta en "Espa_a".
 cat > "$ARCHIVO_JS" << 'JSEOF'
 /**
- * conteo_server.js - Servidor de conteo online MSY VPN
+ * conteo_server.js - Servidor de conteo online JM VPN
  * HTTP :8081 (primario) + TCP :8082 (fallback)
  * t:me/JuanitoProSniif
  */
@@ -298,7 +298,7 @@ fi
 info "Configurando servicio systemd..."
 cat > "$SERVICIO" << SYSEOF
 [Unit]
-Description=MSY VPN Servidor Conteo Online
+Description=JM VPN Servidor Conteo Online
 After=network.target
 Wants=network-online.target
 

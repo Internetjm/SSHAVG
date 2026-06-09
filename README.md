@@ -11,7 +11,7 @@ bash <(wget -qO- https://raw.githubusercontent.com/Internetjm/SSHAVG/main/Plus &
 bash <(wget -qO- https://raw.githubusercontent.com/Internetjm/SSHAVG/main/senharoot)
 ```
 
-# MSY SCRIPT 
+# JM SCRIPT 
 ## :heavy_exclamation_mark: Compatibilidad Actual
 
 * Sistema operativo basado en Linux (Ubuntu Server!)

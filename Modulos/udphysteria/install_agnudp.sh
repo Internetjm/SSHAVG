@@ -18,7 +18,7 @@ _HYST_OBFS="${2:-agnudp}"
 
 # Usuario por defecto para pruebas rápidas
 _DEF_USER="udptest"
-_DEF_PASS="1234msy"
+_DEF_PASS="1234jm"
 
 _detect_arch() {
     local _a; _a=$(uname -m)

@@ -232,7 +232,7 @@ _instalar_dropbear() {
         -f "${dir_conf}/dropbear_dss_host_key" >/dev/null 2>&1 || true
 
     cat > "${dir_conf}/banner.txt" <<'BANEOF'
-t.me/FREEINTERNETVPNMSY
+t.me/JM_VPN19
 BANEOF
 
     # Crear servicio systemd
@@ -553,7 +553,7 @@ fun_inst_dropbear2016() {
                 -f /etc/dropbear-legacy/dropbear_rsa_host_key -s 2048
 
         cat > /etc/dropbear-legacy/banner.txt <<'BANEOF'
-t.me/FREEINTERNETVPNMSY
+t.me/JM_VPN19
 BANEOF
 
         cat > /etc/systemd/system/dropbear-legacy.service <<DBEOF
@@ -670,7 +670,7 @@ DBEOF
             -f /etc/dropbear-legacy/dropbear_dss_host_key
 
     cat > /etc/dropbear-legacy/banner.txt <<'BANEOF'
-t.me/FREEINTERNETVPNMSY
+t.me/JM_VPN19
 BANEOF
 
     cat > /etc/systemd/system/dropbear-legacy.service <<DBEOF
@@ -1274,13 +1274,13 @@ reiniciar_proxy_socks() {
 }
 
 # ============================================================
-# SERVIDOR CONTEO ONLINE MSY VPN — Instalación y gestión
+# SERVIDOR CONTEO ONLINE JM VPN — Instalación y gestión
 # Instala Node.js vía NVM + servidor HTTP :8081 + TCP :8082
 # Compatible Ubuntu 18 → 27  (systemd + UFW/iptables)
 # ============================================================
 _instalar_conteo_servidor() {
     echo -e "\n\033[1;32mDescargando instalador del servidor de conteo...\033[0m\n"
-    local _tmp="/tmp/_msy_conteo_$$.sh"
+    local _tmp="/tmp/_jm_conteo_$$.sh"
     wget -q --timeout=90 \
         "${_REPO_BASE}/Modulos/instalacion/instalar_conteo.sh" \
         -O "$_tmp" 2>/dev/null
@@ -1299,7 +1299,7 @@ fun_instalar_conteo() {
     while true; do
         clear
         echo -e "\033[0;34m┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\033[0m"
-        echo -e "\033[0;34m┃\E[44;1;37m      SERVIDOR CONTEO ONLINE MSY VPN     \E[0m\033[0;34m┃"
+        echo -e "\033[0;34m┃\E[44;1;37m      SERVIDOR CONTEO ONLINE JM VPN     \E[0m\033[0;34m┃"
         echo -e "\033[0;34m┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\033[0m"
         echo ""
 
