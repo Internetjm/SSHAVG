@@ -57,7 +57,9 @@ fun_badvpn() {
 				wget -q "https://github.com/VENHABRABO/SSHPLUS-NEW/raw/main/Install/badvpn-udpgw" -O /bin/badvpn-udpgw 2>/dev/null
 				# Si falla, intentar compilar desde fuente
 				if [[ ! -s /bin/badvpn-udpgw ]]; then
+					while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 3; done
 					apt-get update -y >/dev/null 2>&1
+					while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 3; done
 					apt-get install -y cmake make gcc libnss3-dev libssl-dev >/dev/null 2>&1
 					wget -q "https://github.com/ambrop72/badvpn/archive/master.tar.gz" -O /tmp/badvpn.tar.gz
 					cd /tmp && tar -xzf badvpn.tar.gz

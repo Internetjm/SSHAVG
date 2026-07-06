@@ -61,6 +61,33 @@ _v2ray_active() {
 }
 
 # ============================================================
+# ESPERAR LOCK DE DPKG/APT
+# En VPS recién creadas, "unattended-upgrades" o "apt-daily"
+# suelen correr solos en el primer boot y se quedan con el
+# lock de dpkg. Si intentamos "apt install" justo en ese
+# momento, falla con "Could not get lock /var/lib/dpkg/lock-frontend".
+# Esta función espera (hasta ~5 min) a que el lock se libere
+# antes de dejar pasar cualquier apt-get.
+# ============================================================
+_esperar_dpkg_lock() {
+    local _intentos=0
+    local _max_intentos=30   # 30 x 10s = 5 min máx
+    while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 \
+       || fuser /var/lib/dpkg/lock >/dev/null 2>&1 \
+       || fuser /var/cache/apt/archives/lock >/dev/null 2>&1; do
+        ((_intentos++))
+        if [[ $_intentos -eq 1 ]]; then
+            echo -e "\033[1;33m  ⏳ apt/dpkg ocupado (unattended-upgrades u otro proceso), esperando...\033[0m"
+        fi
+        if [[ $_intentos -gt $_max_intentos ]]; then
+            echo -e "\033[1;31m  ✗ El lock de dpkg no se liberó tras 5 min, se continúa de todos modos\033[0m"
+            break
+        fi
+        sleep 10
+    done
+}
+
+# ============================================================
 # ASEGURAR wsproxy.py actualizado con detección V2Ray
 # Verifica el marker WSPROXY_VERSION y descarga si es viejo.
 # ============================================================
@@ -365,7 +392,9 @@ _v2ray_install() {
     fi
 
     echo -e "\n\033[1;33mInstalando dependencias...\033[0m"
+    _esperar_dpkg_lock
     apt-get update -y >/dev/null 2>&1
+    _esperar_dpkg_lock
     apt-get install -y curl wget unzip ca-certificates socat cron >/dev/null 2>&1
 
     echo -e "\033[1;33mDescargando instalador oficial v2fly...\033[0m"
@@ -867,6 +896,7 @@ _v2ray_issue_cert() {
     echo -ne "\n\033[1;32m¿Continuar? [s/N]: \033[1;37m"; read _c
     [[ ! "$_c" =~ ^[sSyY]$ ]] && return 1
 
+    _esperar_dpkg_lock
     apt-get install -y socat curl cron tar >/dev/null 2>&1
 
     # Instalar acme.sh si no existe
@@ -995,7 +1025,9 @@ _v2ray_install_nginx() {
     fi
 
     echo -e "\n\033[1;33mInstalando nginx...\033[0m"
+    _esperar_dpkg_lock
     apt-get update -y >/dev/null 2>&1
+    _esperar_dpkg_lock
     apt-get install -y nginx >/tmp/nginx_apt.log 2>&1
     if ! command -v nginx &>/dev/null; then
         echo -e "\033[1;31m✗ No se pudo instalar nginx. Log apt:\033[0m"
@@ -1183,6 +1215,7 @@ _v2ray_activar_todo() {
     # 4. SSL Tunnel PRIMERO — para que reclame 443/444/8443 antes que nadie
     echo -e "\n\033[1;33m[4/7] Activando SSL Tunnel + Dispatcher (443/444/8443)...\033[0m"
     if [[ ! -f /etc/stunnel/stunnel.conf ]]; then
+        _esperar_dpkg_lock
         apt-get install -y stunnel4 openssl >/dev/null 2>&1
         [[ -f /etc/default/stunnel4 ]] && sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/stunnel4
         mkdir -p /etc/stunnel
@@ -1214,7 +1247,7 @@ EOF
     # Asegurar dependencias presentes (puede que stunnel.conf exista de instalación previa
     # pero falten el .pem o el servicio enabled)
     command -v stunnel4 &>/dev/null || command -v stunnel &>/dev/null || \
-        apt-get install -y stunnel4 openssl >/dev/null 2>&1
+        { _esperar_dpkg_lock; apt-get install -y stunnel4 openssl >/dev/null 2>&1; }
     [[ -f /etc/default/stunnel4 ]] && sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/stunnel4
 
     # Si falta el .pem, regenerarlo (cert+key concatenados)
@@ -1372,6 +1405,7 @@ EOF
             local _SDNS_RAW="https://github.com/Internetjm/SSHAVG/raw/main"
 
             # Descargar e instalar
+            _esperar_dpkg_lock
             apt-get install -y screen iptables >/dev/null 2>&1
             mkdir -p /etc/slowdns/ssh
 

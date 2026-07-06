@@ -38,6 +38,7 @@ echo ""
 # 1. Instalar dependencias
 echo -e "INSTALANDO DEPENDENCIAS..."
 _install_deps() {
+    while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 3; done
     apt-get install -y screen cron iptables >/dev/null 2>&1
     service cron start >/dev/null 2>&1
     systemctl enable cron >/dev/null 2>&1

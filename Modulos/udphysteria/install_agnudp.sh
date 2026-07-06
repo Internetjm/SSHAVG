@@ -34,6 +34,7 @@ _ARCH=$(_detect_arch)
 echo -e "\033[1;33m[Hysteria v1] Arquitectura: $_ARCH | Puerto: $_HYST_PORT | Obfs: $_HYST_OBFS\033[0m"
 
 # Dependencias
+while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 3; done
 apt-get install -y curl jq sqlite3 openssl >/dev/null 2>&1
 mkdir -p "$_HYST_DIR"
 
