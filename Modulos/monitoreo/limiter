@@ -1,35 +1,59 @@
 #!/bin/bash
-clear
+# ============================================================
+# limiter — Aplicador REAL del límite de conexiones por usuario
+#
+# CAMBIOS v2:
+#   + Antes usaba "ps x" (solo ve procesos del propio root),
+#     por eso nunca detectaba sesiones de otros usuarios y el
+#     límite jamás se aplicaba de verdad.
+#   + Ahora cuenta OpenSSH via "ps -u" y Dropbear via /proc,
+#     igual que sshmonitor (fuente confiable de verdad).
+#   + Corre en loop infinito pensado para vivir dentro de un
+#     "screen -dmS limiter" lanzado desde /etc/autostart.
+# ============================================================
 database="/root/usuarios.db"
-echo $$ > /tmp/pids
-if [ ! -f "$database" ]
-then
-	echo "Archivo /root/usuarios.db no encontrado"
-	exit 1
+echo $$ > /tmp/limiter.pid
+
+if [ ! -f "$database" ]; then
+    echo "Archivo /root/usuarios.db no encontrado"
+    exit 1
 fi
-while true
-do
-	while read usline
-	do
-		user="$(echo $usline | cut -d' ' -f1)"
-		s2ssh="$(echo $usline | cut -d' ' -f2)"
-		if [ -z "$user" ] ; then
-			echo "" > /dev/null
-		else
-			ps x | grep [[:space:]]$user[[:space:]] | grep -v grep | grep -v pts > /tmp/tmp2
-			s1ssh="$(cat /tmp/tmp2 | wc -l)"
-			tput setaf 3 ; tput bold ; printf '  %-35s%s\n' $user $s1ssh/$s2ssh; tput sgr0
-			if [ "$s1ssh" -gt "$s2ssh" ]; then
-				while read line
-				do
-					tmp="$(echo $line | cut -d' ' -f1)"
-					kill $tmp
-				done < /tmp/tmp2
-				rm /tmp/tmp2
-			fi
-		fi
-		
-	done < "$database"
-	sleep 2
-	clear
+
+_dropbear_pids_de() {
+    local uid="$1"
+    for pid_dir in /proc/[0-9]*/; do
+        local pid="${pid_dir//[^0-9]/}"
+        [[ -z "$pid" ]] && continue
+        local exe
+        exe=$(readlink "/proc/$pid/exe" 2>/dev/null)
+        [[ "$exe" != *dropbear* ]] && continue
+        local puid
+        puid=$(awk '/^Uid:/{print $2; exit}' "/proc/$pid/status" 2>/dev/null)
+        [[ "$puid" == "$uid" ]] && echo "$pid"
+    done
+}
+
+while true; do
+    while IFS= read -r usline; do
+        [[ -z "$usline" ]] && continue
+        user="$(awk '{print $1}' <<< "$usline")"
+        limite="$(awk '{print $2}' <<< "$usline")"
+        [[ -z "$user" || -z "$limite" ]] && continue
+        getent passwd "$user" >/dev/null 2>&1 || continue
+        uid="$(id -u "$user")"
+
+        mapfile -t ssh_pids < <(ps -u "$user" --sort=start_time -o pid=,comm= 2>/dev/null | awk '$2=="sshd"{print $1}')
+        mapfile -t drop_pids < <(_dropbear_pids_de "$uid")
+        all_pids=("${ssh_pids[@]}" "${drop_pids[@]}")
+        total=${#all_pids[@]}
+
+        if [[ "$total" -gt "$limite" ]]; then
+            exceso=$(( total - limite ))
+            for pid in "${all_pids[@]: -$exceso}"; do
+                kill -9 "$pid" 2>/dev/null
+            done
+            logger -t sshlimiter "$user: $total/$limite -> $exceso sesion(es) cerradas"
+        fi
+    done < "$database"
+    sleep 5
 done
